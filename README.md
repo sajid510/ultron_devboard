@@ -24,6 +24,7 @@ across all three members.
 | 🧭 **Leader Control** | Team direction, member direction, leader-assigned tasks, handoff manager, data reset/seed tools |
 | 📝 **Notes** | My Notes + Team Notes with file attachments (base64) and viewers |
 | 🤖 **T2 AI Assistant** | Team chat assistant powered by Groq (llama-3.3), per-member shared key |
+| 🧠 **T2 self-learning** | T2 learns from 👍/👎 ratings on its answers, completed-task topics, and error patterns — stored in Firebase and injected into future prompts for more customized help |
 | 🗂 **Data** | Firebase Realtime Database + localStorage cache — offline-friendly, live-synced |
 
 ---

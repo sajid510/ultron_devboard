@@ -90,7 +90,36 @@ flowchart LR
   (`sk-ant…` / `gsk_…`), validates against the API, and stores the resolved key
   in RTDB + `localStorage`.
 
-### 5. Rendering
+### 5. T2 self-learning memory
+
+T2 becomes more helpful the more the team uses it — entirely on the free
+Firebase RTDB tier:
+
+- **Feedback** — every AI answer has 👍/👎 buttons. Ratings are written to
+  `learning/events` and aggregated into `learning/memory/<member>`.
+- **Few-shot learning** — the 8 most recent rated answers are stored per
+  member; the 2 *liked* answers become style examples.
+- **Behaviour logging** — task completions learn topic keywords
+  (`t2LearnFromTask`) and posted errors are logged as events.
+- **Personalization** — `t2MemoryBlock(member)` builds a *"LEARNED MEMORY"*
+  block (rating trend, top topics, liked answer styles) that
+  `t2BuildSystemPrompt()` appends to every Groq system prompt.
+- **Visibility** — the context bar shows `🧠 T2 learned: N👍 M👎 · K topics`.
+
+```mermaid
+flowchart LR
+    M[Member asks T2] --> S[Build system prompt + LEARNED MEMORY]
+    S --> G[Groq llama-3.3]
+    G --> A[Answer + 👍/👎]
+    A --> FB[t2RecordFeedback]
+    FB --> E[learning/events]
+    FB --> MM[learning/memory/member]
+    T[Task completed] --> L[t2LearnFromTask → topics]
+    L --> MM
+    MM --> S
+```
+
+### 6. Rendering
 
 - Views are plain DOM built from cached data so the UI paints instantly, then
   live updates arrive through `dbOn` subscriptions.

@@ -1758,6 +1758,8 @@ function rewriteUpcomingTask(key) {
   function checkUpcomingTask(key) {
   dbOnce(`tasks/${currentUser}/upcoming/${key}`, val => {
     if (!val) return;
+    t2LearnFromTask(val.title || val.text || '');
+    t2LogEvent('task_done', { title: String(val.title || val.text || '').slice(0, 120), key });
     const done = { ...val, done: true, completedAt: Date.now() };
     dbSet(`tasks/${currentUser}/doneTasks/${key}`, done);
     dbRemove(`tasks/${currentUser}/upcoming/${key}`);
@@ -1827,6 +1829,7 @@ function postIssue() {
     created: Date.now()
   };
   dbPush('issues', issue);
+  t2LogEvent('error_posted', { section: issue.section, body: String(body).slice(0, 160), solved: false });
   closeModal('overlayPostError');
   document.getElementById('errBody').value = '';
   document.getElementById('errTried').value = '';
@@ -3169,6 +3172,34 @@ max-height: calc(100dvh - 154px);  background: #0f1525;
   margin-top: 3px;
   text-align: right;
 }
+.t2-fb {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+  align-items: center;
+}
+.t2-fb-hint {
+  font-size: 9px;
+  color: #334466;
+  margin-right: 2px;
+}
+.t2-fb-btn {
+  background: #141c30;
+  border: 1px solid #2a3a5c;
+  border-radius: 6px;
+  color: #94a3b8;
+  font-size: 12px;
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: all .15s;
+}
+.t2-fb-btn:hover {
+  border-color: #7c6af7;
+  background: rgba(124,106,247,.15);
+  color: #e2e8f0;
+}
+.t2-fb-btn:disabled { opacity: .35; cursor: default; }
+.t2-fb-btn.chosen { border-color: #10b981; background: rgba(16,185,129,.15); color: #34d399; }
 .t2-thinking {
   display: flex;
   gap: 4px;
@@ -3449,9 +3480,134 @@ const T2 = {
   unread: 0,
   thinking: false,
  welcomeChecked: false,
-  historyLoadedFor: null
+  historyLoadedFor: null,
+  memoryCache: {},       // learning/memory/<member> per member
+  lastQuestion: '',
+  lastAnswer: ''
 };
 const T2_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
+
+// ═══════════════════════════════════════════════════════════════════
+// T2 SELF-LEARNING MEMORY
+// ═══════════════════════════════════════════════════════════════════
+// T2 learns from member behaviour + feedback and stores it in Firebase
+// (`learning/events` + `learning/memory/<member>`) — free RTDB storage.
+// The learned context is injected into every future system prompt.
+function t2MemPath(member) {
+  return `learning/memory/${(member || 'teammate').replace(/[^a-z0-9_-]/gi, '').toLowerCase()}`;
+}
+
+function t2LoadMemory(member) {
+  if (!member) return;
+  T2.memoryCache = T2.memoryCache || {};
+  dbOnce(t2MemPath(member), mem => {
+    T2.memoryCache[member] = (mem && typeof mem === 'object') ? mem : {};
+  });
+}
+
+function t2LogEvent(type, data) {
+  if (!currentUser) return;
+  dbPush('learning/events', Object.assign({ type, member: currentUser, ts: Date.now() }, data || {}));
+}
+
+function t2RecordFeedback(member, rating, question, answer) {
+  if (!member) return;
+  const q = String(question || '').slice(0, 300);
+  const a = String(answer || '').slice(0, 600);
+  dbPush('learning/events', { type: 't2_feedback', member, rating, question: q, answer: a, ts: Date.now() });
+
+  const path = t2MemPath(member);
+  dbOnce(path, mem => {
+    mem = (mem && typeof mem === 'object') ? mem : {};
+    mem.rating = mem.rating || { good: 0, bad: 0 };
+    if (rating === 1) mem.rating.good = (mem.rating.good || 0) + 1;
+    else mem.rating.bad = (mem.rating.bad || 0) + 1;
+    mem.fewShot = mem.fewShot || [];
+    mem.fewShot.push({ q, a, rating, ts: Date.now() });
+    mem.fewShot = mem.fewShot.slice(-8);
+    dbSet(path, mem);
+    T2.memoryCache = T2.memoryCache || {};
+    T2.memoryCache[member] = mem;
+    t2UpdateContextBar(T2.projectContext || {});
+  });
+}
+
+function t2Rate(rating, btn) {
+  if (!currentUser) return;
+  const q = T2.lastQuestion || '';
+  const a = T2.lastAnswer || '';
+  const row = btn.closest('.t2-fb');
+  if (row) row.querySelectorAll('.t2-fb-btn').forEach(b => { b.disabled = true; });
+  btn.classList.add('chosen');
+  t2RecordFeedback(currentUser, rating, q, a);
+  if (T2.lastAnswer) {
+    T2.history.push({ role: 'assistant', content: rating === 1
+      ? '_Thanks — I\'ll do more of that._'
+      : '_Noted — I\'ll adjust my style._' });
+  }
+}
+
+function t2LearnFromTask(title) {
+  if (!currentUser || !title) return;
+  const path = t2MemPath(currentUser);
+  dbOnce(path, mem => {
+    mem = (mem && typeof mem === 'object') ? mem : {};
+    mem.topics = mem.topics || {};
+    const words = String(title)
+      .toLowerCase()
+      .split(/[\s,\/]+/)
+      .map(w => w.replace(/[^a-z0-9]/g, ''))
+      .filter(w => w.length > 3)
+      .slice(0, 5);
+    words.forEach(w => { mem.topics[w] = (mem.topics[w] || 0) + 1; });
+    dbSet(path, mem);
+    T2.memoryCache = T2.memoryCache || {};
+    T2.memoryCache[currentUser] = mem;
+  });
+}
+
+function t2MemoryBlock(member) {
+  const mem = (T2.memoryCache && T2.memoryCache[member]) || null;
+  if (!mem) return '';
+  const parts = [];
+
+  if (mem.rating) {
+    const g = mem.rating.good || 0, b = mem.rating.bad || 0;
+    if (g + b > 0) {
+      parts.push(`The user has rated ${g} of your answers as good and ${b} as needing work (${g + b} total).`);
+      if (g >= b) parts.push('Keep the current style — it is working.');
+      else parts.push('Adjust your style: the user has rejected several answers. Be more concise and concrete.');
+    }
+  }
+
+  if (mem.topics && Object.keys(mem.topics).length) {
+    const top = Object.entries(mem.topics)
+      .sort((x, y) => y[1] - x[1])
+      .slice(0, 5)
+      .map(([t, c]) => `${t} (${c})`)
+      .join(', ');
+    parts.push(`Topics this user works on most: ${top}. Be detailed there.`);
+  }
+
+  const liked = (mem.fewShot || []).filter(f => f.rating === 1).slice(-2);
+  if (liked.length) {
+    parts.push('The user liked these answer styles — mirror them:');
+    liked.forEach(f => parts.push(`Q: "${f.q}" → style: "${String(f.a).slice(0, 140)}"`));
+  }
+
+  return parts.join('\n');
+}
+
+function t2LearnStats(member) {
+  const mem = (T2.memoryCache && T2.memoryCache[member]) || null;
+  if (!mem || !mem.rating) return { good: 0, bad: 0, topics: 0 };
+  return {
+    good: mem.rating.good || 0,
+    bad: mem.rating.bad || 0,
+    topics: Object.keys(mem.topics || {}).length,
+  };
+}
+
   function t2KeyForMember(member) {
   return member ? `t2_api_key_${member}` : null;
 }
@@ -3551,6 +3707,7 @@ function t2Boot() {
       msgs.style.display = 'flex';
       t2LoadRecentHistory();
       t2WelcomeMessage();
+      t2LoadMemory(currentUser);
     });
   } else {
     t2ValidateKey(T2.apiKey).then(isValid => {
@@ -3563,6 +3720,7 @@ function t2Boot() {
       msgs.style.display = 'flex';
       t2LoadRecentHistory();
       t2WelcomeMessage();
+      t2LoadMemory(currentUser);
     });
   }
 }
@@ -3589,6 +3747,7 @@ async function t2SaveKey() {
   document.getElementById('t2Messages').style.display = 'flex';
     t2LoadRecentHistory();
   t2WelcomeMessage();
+  t2LoadMemory(currentUser);
 }
   async function t2ValidateKey(key) {
   try {
@@ -3728,6 +3887,8 @@ loginUser = function(member) {
   T2.historyLoadedFor = null;
   T2.fullscreen = false;
   T2.apiKey = t2ResolveApiKey();
+  T2.memoryCache = {};
+  t2LoadMemory(member);
   document.getElementById('t2Bubble').style.display = 'flex';
 };
 const _origLogout = logout;
@@ -3762,7 +3923,11 @@ function t2LoadContext() {
 function t2UpdateContextBar(ctx) {
   const openIssues = Object.values(ctx.issues || {}).filter(i => !i.solved).length;
   const prog = ctx.progress || {};
-  const label = `Live data synced · ${openIssues} open issue${openIssues!==1?'s':''} · S:${prog.sadnan||0}% T:${prog.tazin||0}% A:${prog.akib||0}%`;
+  const learn = t2LearnStats(currentUser);
+  let label = `Live data synced · ${openIssues} open issue${openIssues!==1?'s':''} · S:${prog.sadnan||0}% T:${prog.tazin||0}% A:${prog.akib||0}%`;
+  if (learn.good + learn.bad > 0) {
+    label += ` · 🧠 T2 learned: ${learn.good}👍 ${learn.bad}👎 · ${learn.topics} topics`;
+  }
   document.getElementById('t2ContextLabel').textContent = label;
 }
 
@@ -3820,7 +3985,10 @@ YOUR BEHAVIOUR RULES:
 5. For leader mode, think strategically: workload balance, critical path risk, bottleneck detection.
 6. Format responses cleanly. Use short paragraphs. Bold key names and section refs. Max ~200 words unless asked for detail.
 7. You can store engineering knowledge suggestions — remind the user to log solutions in Notes or Issues.
-8. Personality: focused, direct, technically fluent, slightly robotic but warm. You care about this robot getting built.`;
+8. Personality: focused, direct, technically fluent, slightly robotic but warm. You care about this robot getting built.
+
+LEARNED MEMORY (from past feedback & behaviour — follow these preferences):
+${t2MemoryBlock(u) || '(no learned preferences yet — default behaviour)'}`;
 }
  
 // ── Mode quick triggers ───────────────────────────────────────────
@@ -3874,6 +4042,7 @@ async function t2Ask(text) {
   await new Promise(r => setTimeout(r, 1500));
  
   t2AddMessage('user', text);
+  T2.lastQuestion = text;
   T2.history.push({ role: 'user', content: text });
   t2ShowThinking();
   T2.thinking = true;
@@ -3917,6 +4086,7 @@ async function t2Ask(text) {
  
     t2HideThinking();
     t2AddMessage('ai', reply);
+    T2.lastAnswer = reply;
     T2.history.push({ role: 'assistant', content: reply });
  
     // ── Unread badge when panel is closed ─────────────────────────
@@ -4055,7 +4225,19 @@ function t2AddMessage(role, text, opts = {}) {
   time.textContent = new Date(timestamp).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   wrap.appendChild(time);
 
-  if (role === 'ai') { div.appendChild(avatarDiv); div.appendChild(wrap); }
+  if (role === 'ai') {
+    div.appendChild(avatarDiv);
+    if (opts.persist !== false && currentUser) {
+      const fb = document.createElement('div');
+      fb.className = 't2-fb';
+      fb.innerHTML =
+        '<span class="t2-fb-hint">Rate:</span>' +
+        '<button class="t2-fb-btn" title="Good answer" onclick="t2Rate(1, this)">👍</button>' +
+        '<button class="t2-fb-btn" title="Needs work" onclick="t2Rate(-1, this)">👎</button>';
+      wrap.appendChild(fb);
+    }
+    div.appendChild(wrap);
+  }
   else { div.appendChild(wrap); div.appendChild(avatarDiv); }
 
   msgs.appendChild(div);
