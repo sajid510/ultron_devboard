@@ -1068,6 +1068,7 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
 
 <script>
 // ═══════════════════════════════════════════════════════════════════
@@ -1127,15 +1128,22 @@ const DEFAULT_GOALS = {
 };
 
 // ── FIREBASE INIT ──────────────────────────────────────────────────
+let fbAuthReady = null;
 function initFirebase() {
   try {
     firebase.initializeApp(firebaseConfig);
     db = firebase.database();
     fbReady = true;
     console.log('Firebase ready');
+    // Anonymous auth so the dashboard keeps working with locked
+    // Realtime Database rules (".read": "auth != null").
+    fbAuthReady = firebase.auth().signInAnonymously()
+      .then(() => { console.log('Firebase anonymous auth ready'); return true; })
+      .catch(err => { console.warn('Anonymous auth unavailable — data layer may be denied:', err); return false; });
   } catch(e) {
     console.warn('Firebase init failed — using localStorage fallback', e);
     fbReady = false;
+    fbAuthReady = Promise.resolve(false);
   }
 }
 
@@ -2935,7 +2943,7 @@ function seedInitialData(force = false) {
 window.onload = () => {
   buildGrid();
   initFirebase();
-  seedInitialData();
+  Promise.resolve(fbAuthReady).then(() => seedInitialData());
   document.querySelectorAll('.pin-digit').forEach(d => {
     d.addEventListener('keydown', e => { if (e.key === 'Enter') checkPin(); });
   });
