@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 680" font-family="Inter, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0a0e1a"/>
+      <stop offset="1" stop-color="#0f1525"/>
+    </linearGradient>
+    <linearGradient id="hl" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c6af7"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="box" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a2240"/>
+      <stop offset="1" stop-color="#141c30"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L10 5 L0 10 z" fill="#9d8fff"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="680" fill="url(#bg)"/>
+  <rect x="0" y="0" width="1200" height="70" fill="url(#hl)" opacity="0.9"/>
+  <text x="40" y="44" font-size="26" font-weight="700" fill="#fff">robot_oda Dashboard — Team Supersonic</text>
+  <text x="40" y="62" font-size="13" fill="#d8d8f0" opacity="0.85">Single-file static app · Firebase RTDB · T2 AI assistant · GitHub Pages</text>
+
+  <!-- Access layer -->
+  <rect x="30" y="120" width="220" height="130" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="140" y="150" font-size="15" font-weight="700" fill="#22d3ee" text-anchor="middle">ACCESS</text>
+  <text x="140" y="176" font-size="11" fill="#aaa" text-anchor="middle">Welcome screen · member select</text>
+  <text x="140" y="194" font-size="11" fill="#aaa" text-anchor="middle">4-digit PIN per member</text>
+  <text x="140" y="212" font-size="11" fill="#aaa" text-anchor="middle">Leader PIN unlocks control page</text>
+
+  <!-- Auth -->
+  <rect x="30" y="280" width="220" height="110" rx="10" fill="url(#box)" stroke="#10b981" stroke-width="1.5"/>
+  <text x="140" y="310" font-size="15" font-weight="700" fill="#34d399" text-anchor="middle">SECURITY</text>
+  <text x="140" y="336" font-size="11" fill="#aaa" text-anchor="middle">Firebase anonymous auth</text>
+  <text x="140" y="354" font-size="11" fill="#aaa" text-anchor="middle">RTDB rules: auth != null</text>
+  <text x="140" y="372" font-size="11" fill="#aaa" text-anchor="middle">PINs stored in RTDB</text>
+
+  <!-- Views -->
+  <rect x="310" y="120" width="850" height="90" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="330" y="150" font-size="14" font-weight="700" fill="#7c6af7">VIEWS</text>
+  <text x="330" y="176" font-size="12" fill="#ccc">My Dashboard  ·  Team Update  ·  Post an Error!  ·  Leader Control</text>
+  <text x="330" y="194" font-size="11" fill="#888">role-based nav: Leader Control shown only to the leader (sadnan)</text>
+
+  <!-- Features grid -->
+  <rect x="310" y="230" width="270" height="180" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="445" y="258" font-size="13" font-weight="700" fill="#22d3ee" text-anchor="middle">WORKSTREAM</text>
+  <text x="445" y="286" font-size="11" fill="#aaa" text-anchor="middle">Upcoming / Done tasks</text>
+  <text x="445" y="304" font-size="11" fill="#aaa" text-anchor="middle">Subtasks · drag reorder</text>
+  <text x="445" y="322" font-size="11" fill="#aaa" text-anchor="middle">Handoffs with member + notes</text>
+  <text x="445" y="340" font-size="11" fill="#aaa" text-anchor="middle">Status updates + status bar</text>
+  <text x="445" y="358" font-size="11" fill="#aaa" text-anchor="middle">Progress charts per member</text>
+
+  <rect x="600" y="230" width="270" height="180" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="735" y="258" font-size="13" font-weight="700" fill="#22d3ee" text-anchor="middle">ERRORS &amp; NOTES</text>
+  <text x="735" y="286" font-size="11" fill="#aaa" text-anchor="middle">Error feed with resolution flags</text>
+  <text x="735" y="304" font-size="11" fill="#aaa" text-anchor="middle">Comments per error</text>
+  <text x="735" y="322" font-size="11" fill="#aaa" text-anchor="middle">My Notes + Team Notes</text>
+  <text x="735" y="340" font-size="11" fill="#aaa" text-anchor="middle">File attachments (base64)</text>
+  <text x="735" y="358" font-size="11" fill="#aaa" text-anchor="middle">Note viewer / file viewer</text>
+
+  <rect x="890" y="230" width="270" height="180" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="1025" y="258" font-size="13" font-weight="700" fill="#22d3ee" text-anchor="middle">LEADER CONTROL</text>
+  <text x="1025" y="286" font-size="11" fill="#aaa" text-anchor="middle">Team / member direction</text>
+  <text x="1025" y="304" font-size="11" fill="#aaa" text-anchor="middle">Leader-assigned tasks</text>
+  <text x="1025" y="322" font-size="11" fill="#aaa" text-anchor="middle">Handoff manager</text>
+  <text x="1025" y="340" font-size="11" fill="#aaa" text-anchor="middle">Resolve / delete errors</text>
+  <text x="1025" y="358" font-size="11" fill="#aaa" text-anchor="middle">Reset + seed data tools</text>
+
+  <!-- T2 assistant -->
+  <rect x="310" y="430" width="450" height="120" rx="10" fill="url(#box)" stroke="#ec4899" stroke-width="1.5"/>
+  <text x="535" y="460" font-size="14" font-weight="700" fill="#ec4899" text-anchor="middle">T2 — AI TEAM ASSISTANT</text>
+  <text x="535" y="486" font-size="11" fill="#aaa" text-anchor="middle">Groq llama-3.3 / gsk_ keys (accepts the newer prefix)</text>
+  <text x="535" y="504" font-size="11" fill="#aaa" text-anchor="middle">Per-member shared key stored in RTDB + localStorage</text>
+  <text x="535" y="522" font-size="11" fill="#aaa" text-anchor="middle">Leader View / Member View · full-screen chat</text>
+
+  <!-- Data layer -->
+  <rect x="790" y="430" width="370" height="120" rx="10" fill="url(#box)" stroke="#f59e0b" stroke-width="1.5"/>
+  <text x="975" y="460" font-size="14" font-weight="700" fill="#f5a623" text-anchor="middle">DATA LAYER</text>
+  <text x="975" y="486" font-size="11" fill="#aaa" text-anchor="middle">Firebase Realtime Database (RTDB)</text>
+  <text x="975" y="504" font-size="11" fill="#aaa" text-anchor="middle">localStorage cache · live sync via dbOn</text>
+  <text x="975" y="522" font-size="11" fill="#aaa" text-anchor="middle">No backend code — rules enforce auth</text>
+
+  <!-- Hosting -->
+  <rect x="310" y="575" width="850" height="70" rx="10" fill="url(#box)" stroke="#333" stroke-width="1.5"/>
+  <text x="330" y="600" font-size="13" font-weight="700" fill="#7c6af7">HOSTING</text>
+  <text x="330" y="622" font-size="11" fill="#ccc">GitHub Pages · static single file (index.html) · zero build step · deploys on push</text>
+
+  <!-- arrows -->
+  <path d="M250 185 L310 185" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M250 335 L310 250" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M445 410 L445 430" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M735 410 L535 430" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M1025 410 L1025 430" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M535 550 L535 575" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+  <path d="M975 550 L975 575" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
+
+  <text x="40" y="655" font-size="12" fill="#5f5f8a">robot_oda Dashboard · HTML/CSS/JS (no frameworks) · Firebase JS SDK · Groq REST · GitHub Pages</text>
+</svg>
