@@ -3449,7 +3449,7 @@ const T2_HISTORY_WINDOW_MS = 24 * 60 * 60 * 1000;
 }
 
 function t2StoreResolvedKey(key) {
-  if (typeof key !== 'string' || !key.startsWith('sk-ant')) return;
+  if (typeof key !== 'string' || !key.startsWith('gsk_')) return;
   const memberKey = t2KeyForMember(currentUser);
   if (memberKey) localStorage.setItem(memberKey, key);
   localStorage.setItem('t2_api_key_shared', key);
@@ -3463,7 +3463,7 @@ function t2StoreResolvedKey(key) {
 
   for (const keyName of keysToTry) {
     const value = localStorage.getItem(keyName);
-    if (typeof value === 'string' && value.startsWith('sk-ant')) {
+    if (typeof value === 'string' && value.startsWith('gsk_')) {
       return value;
     }
   }
