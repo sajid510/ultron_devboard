@@ -19,7 +19,7 @@
 
   <rect width="1200" height="680" fill="url(#bg)"/>
   <rect x="0" y="0" width="1200" height="70" fill="url(#hl)" opacity="0.9"/>
-  <text x="40" y="44" font-size="26" font-weight="700" fill="#fff">robot_oda Dashboard — Team Supersonic</text>
+  <text x="40" y="44" font-size="26" font-weight="700" fill="#fff">ultron_devboard — Team Supersonic</text>
   <text x="40" y="62" font-size="13" fill="#d8d8f0" opacity="0.85">Single-file static app · Firebase RTDB · T2 AI assistant · GitHub Pages</text>
 
   <!-- Access layer -->
@@ -95,5 +95,5 @@
   <path d="M535 550 L535 575" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
   <path d="M975 550 L975 575" stroke="#9d8fff" stroke-width="2" fill="none" marker-end="url(#arrow)"/>
 
-  <text x="40" y="655" font-size="12" fill="#5f5f8a">robot_oda Dashboard · HTML/CSS/JS (no frameworks) · Firebase JS SDK · Groq REST · GitHub Pages</text>
+  <text x="40" y="655" font-size="12" fill="#5f5f8a">ultron_devboard · HTML/CSS/JS (no frameworks) · Firebase JS SDK · Groq REST · GitHub Pages</text>
 </svg>

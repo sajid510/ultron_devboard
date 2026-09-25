@@ -1,4 +1,4 @@
-# robot_oda Dashboard — Architecture
+# ultron_devboard — Architecture
 
 > Design document for the Team Supersonic team command center.
 
@@ -8,7 +8,7 @@ The dashboard is a **zero-build static web app**: one `index.html` contains the
 entire UI and logic, backed by **Firebase Realtime Database** for live sync and
 **GitHub Pages** for hosting. There is no backend to deploy.
 
-![robot_oda architecture](../assets/architecture.svg)
+![ultron_devboard architecture](../assets/architecture.svg)
 
 ## Data flow
 
@@ -128,7 +128,7 @@ flowchart LR
 ## Hosting & deployment
 
 - GitHub Pages serves the repo at
-  `https://sajid510.github.io/robot-oda-dashboard/`.
+  `https://sajid510.github.io/ultron_devboard/`.
 - Pushing to `main` redeploys automatically — no build pipeline needed.
 
 ## Security notes

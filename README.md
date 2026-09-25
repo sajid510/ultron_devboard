@@ -1,11 +1,11 @@
-# 🤖 robot_oda Dashboard
+# 🤖 ultron_devboard
 
 A real-time team command center for **Team Supersonic**'s autonomous robot
 project — single-file web app, zero build step, live sync via Firebase.
 
-![robot_oda Dashboard](assets/dashboard-screenshot.png)
+![ultron_devboard](assets/dashboard-screenshot.png)
 
-**Live:** https://sajid510.github.io/robot-oda-dashboard/
+**Live:** https://sajid510.github.io/ultron_devboard/
 
 ---
 
@@ -38,8 +38,8 @@ The app is already deployed. Any push to `main` redeploys automatically.
 ### Option B — Local file
 
 ```bash
-git clone https://github.com/sajid510/robot-oda-dashboard.git
-cd robot-oda-dashboard
+git clone https://github.com/sajid510/ultron_devboard.git
+cd ultron_devboard
 start index.html
 ```
 
@@ -75,7 +75,7 @@ start index.html
 
 ## 🏗 Architecture
 
-![robot_oda architecture](assets/architecture.svg)
+![ultron_devboard architecture](assets/architecture.svg)
 
 - **Single file** — all HTML/CSS/JS lives in `index.html` (no build step).
 - **Data layer** — Firebase Realtime Database paths per domain
@@ -92,7 +92,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) for the full design.
 ## 🗂 Repository structure
 
 ```
-robot-oda-dashboard/
+ultron_devboard/
 ├── index.html            # the entire app (4,100+ lines)
 ├── database.rules.json   # Firebase RTDB security rules
 ├── assets/
